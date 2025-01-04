@@ -1,7 +1,7 @@
-@Library('my-shared-library@main') _  // Correct syntax
+@Library('jenkins-shared-libraries-@main') _  // Correct syntax
 
 pipeline {
-    agent { label 'dev1' }
+    agent { label 'slave-2' }
 
     environment {
         JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
@@ -12,25 +12,32 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                checkoutCode()
-            }
-        }
-
+		script {
+			pipeline1.checkscm()
+		}		
+       	}
+     }
         stage('Set up Java 17') {
             steps {
-                setupJava()
+                script {
+                	pipeline1.setupjava()
+                }
             }
-        }
+	}
 
         stage('Set up Maven') {
             steps {
-                setupMaven()
+                script {
+                	pipeline1.mavensetup()
+		}
             }
         }
 
         stage('Build with Maven') {
             steps {
-                buildProject()
+                script {
+			pipeline1.build()
+		}
             }
         }
 
@@ -42,26 +49,39 @@ pipeline {
 
         stage('Run Application') {
             steps {
-                runApplication()
+                script {
+				pipeline1.runApp()
+				}
             }
         }
 
         stage('Validate App is Running') {
-            steps {
-                validateApp()
-            }
+          	steps {
+               	script {
+					pipeline1.validateApp()
+				}
+			}
         }
-
-        stage('Gracefully Stop Spring Boot App') {
-            steps {
-                stopApplication()
-            }
+        stage('wait') {
+			steps {
+				script {
+					pipeline1.waiting()
+				}
+			}
         }
-    }
-
-    post {
-        always {
-            cleanup()
+        stage('stoping') {
+			steps {
+				script {
+					pipeline1.stop()
+				}
+			}
         }
+         stage('cleaning') {
+			steps {
+				script {
+					pipeline1.clean()
+				}
+			}
+        }        
     }
 }
